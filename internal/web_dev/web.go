@@ -1,6 +1,4 @@
-//go:build dev
-
-package main
+package webdev
 
 import (
 	"io"
@@ -93,7 +91,7 @@ func staticWebsocket(c echo.Context) error {
 	return nil
 }
 
-func static() echo.HandlerFunc {
+func Static() echo.HandlerFunc {
 	client := http.DefaultClient
 
 	return func(c echo.Context) error {

@@ -1,6 +1,6 @@
 //go:build !dev
 
-//go:generate npm --prefix ui run build
+//go:generate npm --prefix web run build
 package main
 
 import (
@@ -11,11 +11,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go:embed ui/dist
+//go:embed web/dist
 var uiFs embed.FS
 
 func static() echo.HandlerFunc {
-	fsys, err := fs.Sub(uiFs, "ui/dist")
+	fsys, err := fs.Sub(uiFs, "web/dist")
 	if err != nil {
 		panic(err)
 	}
