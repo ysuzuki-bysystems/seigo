@@ -44,11 +44,11 @@ func staticWebsocketHandler(ws *websocket.Conn) {
 	origin.Scheme = "http"
 
 	cfg, err := websocket.NewConfig(url.String(), origin.String())
-	cfg.Protocol = ws.Config().Protocol
 	if err != nil {
 		slog.Error("x NewConfig", "err", err)
 		return
 	}
+	cfg.Protocol = ws.Config().Protocol
 
 	conn, err := websocket.DialConfig(cfg)
 	if err != nil {
