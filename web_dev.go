@@ -4,7 +4,7 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"localhost/seigo/internal/web_dev"
+	"github.com/ysuzuki-bysystems/seigo/internal/web_dev"
 )
 
 func static() echo.HandlerFunc {

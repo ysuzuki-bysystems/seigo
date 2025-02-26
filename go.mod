@@ -1,4 +1,4 @@
-module localhost/seigo
+module github.com/ysuzuki-bysystems/seigo
 
 go 1.24.0
 
