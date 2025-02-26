@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 
 function ban(): never {
-  throw new Error();
+  throw new Error("ban");
 }
 
 createRoot(document.getElementById("root") ?? ban()).render(
