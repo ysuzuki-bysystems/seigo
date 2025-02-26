@@ -46,13 +46,13 @@ func staticWebsocketHandler(ws *websocket.Conn) {
 	cfg, err := websocket.NewConfig(url.String(), origin.String())
 	cfg.Protocol = ws.Config().Protocol
 	if err != nil {
-		slog.Error("x NewConfig", err)
+		slog.Error("x NewConfig", "err", err)
 		return
 	}
 
 	conn, err := websocket.DialConfig(cfg)
 	if err != nil {
-		slog.Error("x websocket.Dial", err)
+		slog.Error("x websocket.Dial", "err", err)
 		return
 	}
 	defer conn.Close()
@@ -67,7 +67,7 @@ func staticWebsocketHandler(ws *websocket.Conn) {
 		defer conn.WriteClose(1000)
 
 		if _, err := io.Copy(conn, ws); err != nil {
-			slog.Error("x io.Copy(conn, ws)", err)
+			slog.Error("x io.Copy(conn, ws)", "err", err)
 		}
 	}()
 
@@ -79,7 +79,7 @@ func staticWebsocketHandler(ws *websocket.Conn) {
 		defer ws.WriteClose(1000)
 
 		if _, err := io.Copy(ws, conn); err != nil {
-			slog.Error("x io.Copy(ws, conn)", err)
+			slog.Error("x io.Copy(ws, conn)", "err", err)
 		}
 	}()
 

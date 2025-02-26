@@ -19,6 +19,6 @@ func main() {
 	e.GET("*", static())
 
 	if err := e.Start(":8080"); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		slog.Error("Failed to serve.", err)
+		slog.Error("Failed to serve.", "err", err)
 	}
 }
