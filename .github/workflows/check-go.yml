@@ -22,7 +22,7 @@ jobs:
 
       - name: Check formatted
         run: |
-          changed="$(mktmp)"
+          changed="$(mktemp)"
           find . -name '*.go' | xargs --no-run-if-empty gofmt -d | tee "$changed"
           [[ -s "$changed" ]]
 
