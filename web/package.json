@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "biome lint --changed",
     "check": "biome check",
-    "fmt": "biome format --write --changed"
+    "fmt": "biome format --write --changed",
+    "test": "echo 'Skipped... (Not implemented)'"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -22,5 +23,8 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "typescript": "~5.7.2",
     "vite": "^6.1.0"
+  },
+  "engines": {
+    "node": "22.14"
   }
 }

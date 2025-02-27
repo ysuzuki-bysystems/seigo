@@ -1,0 +1,40 @@
+name: Check - Go
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Check formatted
+        run: |
+          changed="$(mktmp)"
+          find . -name '*.go' | xargs --no-run-if-empty gofmt -d | tee "$changed"
+          [[ -s "$changed" ]]
+
+      - name: Generate web/dist stub
+        run: |
+          mkdir -p web/dist
+          touch web/dist/index.html
+
+      - name: Lint
+        run: |
+          go vet ./...
+
+      - name: Test
+        run: |
+          go test ./...
