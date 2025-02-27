@@ -1,7 +1,6 @@
 package webdev
 
 import (
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
