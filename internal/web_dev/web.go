@@ -1,19 +1,33 @@
 package webdev
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
+	neturl "net/url"
 	"sync"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/net/websocket"
 )
 
+var upstream = "http://localhost:5173/"
+
+var upstreamUrl *neturl.URL
+
+func init() {
+	var err error
+	upstreamUrl, err = neturl.Parse(upstream)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func staticProxy(client *http.Client, c echo.Context) error {
-	url := *c.Request().URL
-	url.Scheme = "http"
-	url.Host = "localhost:5173"
+	url := *upstreamUrl
+	url.Path = c.Request().URL.Path
+	url.RawQuery = c.Request().URL.RawQuery
 
 	req, err := http.NewRequest(c.Request().Method, url.String(), nil)
 	if err != nil {
@@ -36,12 +50,12 @@ func staticProxy(client *http.Client, c echo.Context) error {
 func staticWebsocketHandler(ws *websocket.Conn) {
 	defer ws.Close()
 
-	url := *ws.Request().URL
+	url := *upstreamUrl
 	url.Scheme = "ws"
-	url.Host = "localhost:5173"
+	url.Path = ws.Request().URL.Path
+	url.RawQuery = ws.Request().URL.RawQuery
 
-	origin := url
-	origin.Scheme = "http"
+	origin := *upstreamUrl
 
 	cfg, err := websocket.NewConfig(url.String(), origin.String())
 	if err != nil {
