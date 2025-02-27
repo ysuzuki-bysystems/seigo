@@ -24,7 +24,7 @@ jobs:
         run: |
           changed="$(mktemp)"
           find . -name '*.go' | xargs --no-run-if-empty gofmt -d | tee "$changed"
-          [[ -s "$changed" ]]
+          [[ ! -s "$changed" ]]
 
       - name: Generate web/dist stub
         run: |
