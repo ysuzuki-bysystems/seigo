@@ -37,5 +37,5 @@ func (e *Collection) UnmarshalTOML(raw any) error {
 }
 
 type Config struct {
-	Collection []Collection `toml:"collection"`
+	Collection []*Collection `toml:"collection"`
 }
