@@ -29,7 +29,7 @@ func TestJournaldCollect(t *testing.T) {
 	}
 	opts := &types.CollectOpts{
 		Tail:  false,
-		Since: time.Unix(0, 0),
+		Since: time.Unix(0, 0).UTC(),
 	}
 	iter, err := journald.JournaldCollect(t.Context(), cfg, opts)
 	if err != nil {
@@ -46,7 +46,7 @@ func TestJournaldCollect(t *testing.T) {
 
 	wants := []string{
 		`{"arg":"--output=json"}`,
-		`{"arg":"since=1970-01-01T09:00:00+09:00"}`,
+		`{"arg":"since=1970-01-01T00:00:00Z"}`,
 		`{"arg":"CONTAINER_NAME=mycontainer"}`,
 		`{"data":"loooooooong-message"}`,
 	}
