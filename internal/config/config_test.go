@@ -12,7 +12,7 @@ func TestParseJournald(t *testing.T) {
 type = 'journald'
 name = "default"
 docker-aware = true
-[collection.matches]
+[[collection.match]]
 CONTAINER_NAME = 'fuzz'
 `
 
@@ -35,7 +35,7 @@ CONTAINER_NAME = 'fuzz'
 
 	// https://pkg.go.dev/encoding/json#Marshal
 	// > The map keys are sorted and used as JSON object keys by applying the following rules, subject to the UTF-8 coercion described for string values above:
-	wants := `{"docker-aware":true,"matches":{"CONTAINER_NAME":"fuzz"},"name":"default","type":"journald"}`
+	wants := `{"docker-aware":true,"match":[{"CONTAINER_NAME":"fuzz"}],"name":"default","type":"journald"}`
 	if string(c.Opts) != wants {
 		t.Fatalf("%s != %s", c.Opts, wants)
 	}
