@@ -38,6 +38,9 @@ func init() {
 	var defaultListenPort uint16 = 8080
 	if v, found := os.LookupEnv("PORT"); found {
 		n, err := strconv.Atoi(v)
+		if n > 0xFFFF || n < 0 {
+			panic("Invalid port range")
+		}
 		if err == nil {
 			defaultListenPort = uint16(n)
 		}
