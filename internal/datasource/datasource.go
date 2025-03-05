@@ -3,6 +3,7 @@ package datasource
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"iter"
 	"sync"
@@ -35,6 +36,8 @@ func registerDatasource(typ string, src datasource) {
 	panic(fmt.Sprintf("Already registered: %s", typ))
 }
 
+var ErrCollectionNotFound = errors.New("collection not found.")
+
 func Collect(cx context.Context, cfg *config.Config, name string, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
 	var collection *config.Collection
 	for _, item := range cfg.Collection {
@@ -44,6 +47,10 @@ func Collect(cx context.Context, cfg *config.Config, name string, opts *types.Co
 
 		collection = item
 		break
+	}
+
+	if collection == nil {
+		return nil, ErrCollectionNotFound
 	}
 
 	v, found := datasources.Load(collection.Type)

@@ -1,4 +1,4 @@
-package webdev
+package dev
 
 import (
 	"io"

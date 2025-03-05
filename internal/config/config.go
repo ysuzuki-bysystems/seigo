@@ -3,6 +3,9 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Collection struct {
@@ -38,4 +41,19 @@ func (e *Collection) UnmarshalTOML(raw any) error {
 
 type Config struct {
 	Collection []*Collection `toml:"collection"`
+}
+
+func ReadConfig(path string) (*Config, error) {
+	fp, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer fp.Close()
+
+	var result Config
+	if _, err := toml.NewDecoder(fp).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
