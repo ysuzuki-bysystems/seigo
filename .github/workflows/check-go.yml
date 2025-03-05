@@ -31,8 +31,8 @@ jobs:
 
       - name: Generate web/dist stub
         run: |
-          mkdir -p web/dist
-          touch web/dist/index.html
+          mkdir -p internal/web/dist
+          touch internal/web/dist/index.html
 
       - name: Lint
         run: |

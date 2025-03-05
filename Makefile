@@ -2,7 +2,7 @@
 
 build-for-codeql:
 	# make stub
-	mkdir -p ./web/dist
+	mkdir -p ./internal/web/dist
 	touch ./web/dist/index.html
 	go build ./...
 

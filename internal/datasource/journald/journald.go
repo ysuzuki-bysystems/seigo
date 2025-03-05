@@ -48,7 +48,7 @@ func JournaldCollect(cx context.Context, cfg *JournaldConfig, opts *types.Collec
 	if opts.Tail {
 		args = append(args, "--follow")
 	} else {
-		args = append(args, fmt.Sprintf("since=%s", opts.Since.Format(time.RFC3339)))
+		args = append(args, fmt.Sprintf("--since=%s", opts.Since.Format(time.RFC3339)))
 	}
 	for _, m := range cfg.Match {
 		// TODO sorted

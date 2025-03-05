@@ -46,7 +46,7 @@ func TestJournaldCollect(t *testing.T) {
 
 	wants := []string{
 		`{"arg":"--output=json"}`,
-		`{"arg":"since=1970-01-01T00:00:00Z"}`,
+		`{"arg":"--since=1970-01-01T00:00:00Z"}`,
 		`{"arg":"CONTAINER_NAME=mycontainer"}`,
 		`{"data":"loooooooong-message"}`,
 	}

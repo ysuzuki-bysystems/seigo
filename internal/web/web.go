@@ -1,7 +1,7 @@
 //go:build !dev
 
-//go:generate npm --prefix web run build
-package main
+//go:generate npm --prefix ../../web run build -- --outDir ../internal/web/dist --emptyOutDir
+package web
 
 import (
 	"embed"
@@ -11,11 +11,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go:embed web/dist
+//go:embed dist
 var uiFs embed.FS
 
-func static() echo.HandlerFunc {
-	fsys, err := fs.Sub(uiFs, "web/dist")
+func Static() echo.HandlerFunc {
+	fsys, err := fs.Sub(uiFs, "dist")
 	if err != nil {
 		panic(err)
 	}
