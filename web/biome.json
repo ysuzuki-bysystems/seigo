@@ -24,6 +24,12 @@
       "all": true,
       "style": {
         "noDefaultExport": "off"
+      },
+      "correctness": {
+        "useImportExtensions": "off"
+      },
+      "suspicious": {
+        "noReactSpecificProps": "off"
       }
     }
   },
