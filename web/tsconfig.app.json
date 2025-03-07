@@ -22,7 +22,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    "erasableSyntaxOnly": true
+    "erasableSyntaxOnly": true,
+
+    "types": ["vitest/importMeta"]
   },
   "include": ["src"],
   "exclude": ["**/*.worker.ts"]

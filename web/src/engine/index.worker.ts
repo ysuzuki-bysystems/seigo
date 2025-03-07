@@ -170,7 +170,7 @@ const Request: v.GenericSchema<ty.Request> = v.union([
         since: v.optional(v.undefined()),
       }),
       v.object({
-        tail: v.literal(false),
+        tail: v.optional(v.literal(false)),
         since: v.optional(v.date()),
       }),
     ]),
@@ -184,20 +184,68 @@ function assertsRequest(val: unknown): asserts val is ty.Request {
   v.parse(Request, val);
 }
 
-const env: Env = {
-  post: (event) => globalThis.postMessage(event),
-};
+function _start() {
+  const env: Env = {
+    post: (event) => globalThis.postMessage(event),
+  };
 
-function handleMessage(event: MessageEvent): void {
-  const req = event.data;
-  assertsRequest(req);
+  function handleMessage(event: MessageEvent): void {
+    const req = event.data;
+    assertsRequest(req);
 
-  handle(env, req).catch(console.error);
+    handle(env, req).catch(console.error);
+  }
+
+  globalThis.addEventListener("message", handleMessage);
+
+  env.post({
+    type: "ready",
+    implementations: Object.keys(impls),
+  });
 }
 
-globalThis.addEventListener("message", handleMessage);
+if (
+  typeof DedicatedWorkerGlobalScope !== "undefined" &&
+  globalThis instanceof DedicatedWorkerGlobalScope
+) {
+  _start();
+}
 
-env.post({
-  type: "ready",
-  implementations: Object.keys(impls),
-});
+if (import.meta.vitest) {
+  const { it, describe } = import.meta.vitest;
+
+  describe("assertsRequest", () => {
+    const cases: ty.Request[] = [
+      {
+        type: "cancel",
+      },
+      {
+        type: "start",
+        collection: "c",
+        language: "l",
+        query: "q",
+      },
+      {
+        type: "start",
+        collection: "c",
+        language: "l",
+        query: "q",
+        tail: true,
+      },
+      {
+        type: "start",
+        collection: "c",
+        language: "l",
+        query: "q",
+        tail: false,
+        since: new Date(0),
+      },
+    ];
+    it.each(cases.map<[string, ty.Request]>((v) => [JSON.stringify(v), v]))(
+      "%s",
+      (_, obj) => {
+        assertsRequest(obj);
+      },
+    );
+  });
+}
