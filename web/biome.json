@@ -23,7 +23,8 @@
     "rules": {
       "all": true,
       "style": {
-        "noDefaultExport": "off"
+        "noDefaultExport": "off",
+        "noNamespaceImport": "off"
       },
       "correctness": {
         "useImportExtensions": "off"

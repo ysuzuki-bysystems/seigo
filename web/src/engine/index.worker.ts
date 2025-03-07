@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 import { collect } from "../api";
 import type { CollectOpts } from "../api";
 import type * as ty from "./types";
@@ -153,8 +155,33 @@ async function handle(env: Env, req: ty.Request): Promise<void> {
   }
 }
 
+const Request: v.GenericSchema<ty.Request> = v.union([
+  v.intersect([
+    v.object({
+      type: v.literal("start"),
+      collection: v.string(),
+      language: v.string(),
+      query: v.string(),
+      refresh: v.optional(v.literal(true)),
+    }),
+    v.union([
+      v.object({
+        tail: v.literal(true),
+        since: v.optional(v.undefined()),
+      }),
+      v.object({
+        tail: v.literal(false),
+        since: v.optional(v.date()),
+      }),
+    ]),
+  ]),
+  v.object({
+    type: v.literal("cancel"),
+  }),
+]);
+
 function assertsRequest(val: unknown): asserts val is ty.Request {
-  // TODO
+  v.parse(Request, val);
 }
 
 const env: Env = {

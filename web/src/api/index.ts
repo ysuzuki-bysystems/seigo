@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 export type CollectionItem = {
   name: string;
 };
@@ -6,10 +8,19 @@ export type ListCollectionsResponse = {
   collections: CollectionItem[];
 };
 
+const ListCollectionsResponse: v.GenericSchema<ListCollectionsResponse> =
+  v.object({
+    collections: v.array(
+      v.object({
+        name: v.string(),
+      }),
+    ),
+  });
+
 function assertsListCollectionsResponse(
   val: unknown,
 ): asserts val is ListCollectionsResponse {
-  // TODO
+  v.parse(ListCollectionsResponse, val);
 }
 
 export async function fetchListCollections(): Promise<ListCollectionsResponse> {

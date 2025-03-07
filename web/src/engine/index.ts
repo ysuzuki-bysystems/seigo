@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 import type * as ty from "./types";
 
 export type EngineState = {
@@ -17,8 +19,29 @@ export type StartExecutionOpts = DistributiveOmit<
   "type"
 >;
 
+const vEvent: v.GenericSchema<ty.Event> = v.union([
+  v.object({
+    type: v.literal("begin"),
+  }),
+  v.object({
+    type: v.literal("done"),
+  }),
+  v.object({
+    type: v.literal("error"),
+    error: v.unknown(),
+  }),
+  v.object({
+    type: v.literal("row"),
+    row: v.record(v.string(), v.unknown()),
+  }),
+  v.object({
+    type: v.literal("ready"),
+    implementations: v.array(v.string()),
+  }),
+]);
+
 function assertsEvent(val: unknown): asserts val is ty.Event {
-  // TODO
+  v.parse(vEvent, val);
 }
 
 export class Engine {
