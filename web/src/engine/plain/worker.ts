@@ -5,26 +5,25 @@ export const name = "plain";
 export default class PlainEngine implements ty.EngineImplementation {
   data: string[] = [];
 
-  async *evaluate(_: string): AsyncIterable<object> {
-    await Promise.resolve();
-
+  evaluate(_: string, onRow: ty.OnRow): void {
     for (const text of this.data) {
-      yield JSON.parse(text);
+      onRow(JSON.parse(text));
     }
   }
 
-  async *collectEvaluate(
+  async collectEvaluate(
     collection: AsyncIterable<string>,
     _: string,
     store: boolean,
-  ): AsyncIterable<object> {
+    onRow: ty.OnRow,
+  ): Promise<void> {
     this.data = [];
     for await (const row of collection) {
       if (store) {
         this.data.push(row);
       }
 
-      yield JSON.parse(row);
+      onRow(JSON.parse(row));
     }
   }
 }

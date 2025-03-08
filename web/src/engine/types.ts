@@ -46,11 +46,14 @@ export type Request = StartExecutionRequest | CancelRequest;
 
 export type Event = BeginEvent | DoneEvent | ErrorEvent | RowEvent | ReadyEvent;
 
+export type OnRow = (row: object) => void;
+
 export interface EngineImplementation {
   collectEvaluate(
     collection: AsyncIterable<string>,
     query: string,
     store: boolean,
-  ): AsyncIterable<object>;
-  evaluate(query: string): AsyncIterable<object>;
+    onRow: OnRow,
+  ): Promise<void>;
+  evaluate(query: string, onRow: OnRow): void | Promise<void>;
 }

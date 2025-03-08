@@ -51,6 +51,16 @@
           "trailingCommas": "none"
         }
       }
+    },
+    {
+      "include": ["./src/engine/jaq/wasi.worker.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
     }
   ]
 }

@@ -162,7 +162,7 @@ function datetimeLocalFormat(date: Date): string | undefined {
 function App(): React.ReactNode {
   const [language, setLanguage] = useState("");
   const [collection, setCollection] = useState("");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(".");
   const [since, setSince] = useState(() =>
     datetimeLocalFormat(new Date(Date.now() - 1 * 60 * 60 * 1000)),
   );

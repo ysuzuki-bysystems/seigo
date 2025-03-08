@@ -15,6 +15,7 @@ function register(impl: ImplementationModule): void {
   impls[impl.name] = impl;
 }
 
+register(await import("./jaq/worker"));
 register(await import("./plain/worker"));
 
 type CollectOptsWithImpl = CollectOpts & { implementation: string };
@@ -89,33 +90,32 @@ async function handleStartExecution(
         implementation: req.language,
       };
 
-      let iter: AsyncIterable<object>;
+      const onRow = (row: object) => {
+        abort.signal.throwIfAborted();
+        env.post({ type: "row", row });
+      };
+
       if (req.tail) {
-        iter = impl.collectEvaluate(
+        env.lastStoredOpts = undefined;
+        await impl.collectEvaluate(
           collect(opts, abort.signal),
           req.query,
           false,
+          onRow,
         );
-        env.lastStoredOpts = undefined;
       } else if (req.refresh || !equalOpts(opts, env.lastStoredOpts)) {
-        iter = impl.collectEvaluate(
+        env.lastStoredOpts = opts;
+        await impl.collectEvaluate(
           collect(opts, abort.signal),
           req.query,
           true,
+          onRow,
         );
-        env.lastStoredOpts = opts;
       } else {
-        iter = impl.evaluate(req.query);
+        await impl.evaluate(req.query, onRow);
       }
 
-      for await (const obj of iter) {
-        abort.signal.throwIfAborted();
-        env.post({ type: "row", row: obj });
-      }
-
-      env.post({
-        type: "done",
-      });
+      env.post({ type: "done" });
     } finally {
       env.abort = undefined; // `undefined` ... Protected by lint/suspicious/noShadowRestrictedNames
       abort.abort();

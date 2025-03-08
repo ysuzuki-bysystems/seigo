@@ -27,5 +27,5 @@
     "types": ["vitest/importMeta"]
   },
   "include": ["src"],
-  "exclude": ["**/*.worker.ts"]
+  "exclude": ["**/*.worker.ts", "**/worker.ts"]
 }
