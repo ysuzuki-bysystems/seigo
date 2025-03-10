@@ -26,9 +26,6 @@
         "noDefaultExport": "off",
         "noNamespaceImport": "off"
       },
-      "correctness": {
-        "useImportExtensions": "off"
-      },
       "suspicious": {
         "noReactSpecificProps": "off"
       }
@@ -53,7 +50,7 @@
       }
     },
     {
-      "include": ["./src/engine/jaq/wasi.worker.ts"],
+      "include": ["./src/engine/jaq/wasi.ts"],
       "linter": {
         "rules": {
           "style": {
