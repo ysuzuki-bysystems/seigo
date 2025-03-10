@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type noTtyWriter struct {
