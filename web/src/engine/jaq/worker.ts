@@ -198,7 +198,7 @@ parentPort.addEventListener("message", async (event) => {
         const mutex = new Int32Array(buf, 0, 1);
         worker.postMessage([blob, buf]);
         const r = Atomics.wait(mutex, 0, 0, 500);
-        if (r !== "ok") {
+        if (r === "timed-out") {
           throw new Error(`Fail: ${r}`);
         }
         const n = mutex[0];
