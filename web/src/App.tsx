@@ -11,10 +11,10 @@ import {
 import type React from "react";
 import "./App.css";
 
-import { fetchListCollections } from "./api";
-import type { ListCollectionsResponse } from "./api";
-import { Engine } from "./engine";
-import type { EngineState } from "./engine";
+import { fetchListCollections } from "./api/collections/index.ts";
+import type { ListCollectionsResponse } from "./api/collections/index.ts";
+import { Engine } from "./engine/index.ts";
+import type { EngineState } from "./engine/index.ts";
 
 function renderText(val: unknown): React.ReactNode {
   if (typeof val === "undefined") {
@@ -162,7 +162,7 @@ function datetimeLocalFormat(date: Date): string | undefined {
 function App(): React.ReactNode {
   const [language, setLanguage] = useState("");
   const [collection, setCollection] = useState("");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(".");
   const [since, setSince] = useState(() =>
     datetimeLocalFormat(new Date(Date.now() - 1 * 60 * 60 * 1000)),
   );
@@ -251,7 +251,7 @@ function App(): React.ReactNode {
         </button>
       )}
       <StateView state={state} />
-      {typeof state.error !== "undefined" && String(state.error)}
+      {typeof state.error !== "undefined" && <pre>{state.error}</pre>}
     </>
   );
 }

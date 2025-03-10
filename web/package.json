@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:jaq": "cargo install --target=wasm32-wasip1 --root src/engine/jaq --no-default-features --no-track jaq@2.1.1",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "biome lint",
     "check": "biome check",
@@ -19,9 +20,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.13.10",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "@vitest/coverage-v8": "^3.0.8",
+    "@vitest/ui": "^3.0.8",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vitest": "^3.0.8"

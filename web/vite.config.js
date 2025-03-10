@@ -16,8 +16,6 @@ export default defineConfig({
     "import.meta.vitest": "undefined",
   },
   test: {
-    include: "src/**/*.ts",
-    exclude: "**/*.d.ts",
-    passWithNoTests: true,
+    includeSource: ["src/**/*.ts"],
   },
 });

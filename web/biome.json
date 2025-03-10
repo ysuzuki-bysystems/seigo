@@ -26,9 +26,6 @@
         "noDefaultExport": "off",
         "noNamespaceImport": "off"
       },
-      "correctness": {
-        "useImportExtensions": "off"
-      },
       "suspicious": {
         "noReactSpecificProps": "off"
       }
@@ -49,6 +46,16 @@
         },
         "formatter": {
           "trailingCommas": "none"
+        }
+      }
+    },
+    {
+      "include": ["./src/engine/jaq/wasi.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
         }
       }
     }

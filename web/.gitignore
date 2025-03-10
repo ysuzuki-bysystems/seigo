@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/engine/jaq/.crates2.json
+src/engine/jaq/.crates.toml
+coverage/
+src/engine/jaq/bin/jaq.wasm

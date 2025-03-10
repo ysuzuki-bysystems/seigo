@@ -27,9 +27,9 @@ export type DoneEvent = {
   type: "done";
 };
 
-export type ErrorEvent = {
-  type: "error";
-  error: unknown;
+export type StderrEvent = {
+  type: "stderr";
+  chunk: string;
 };
 
 export type RowEvent = {
@@ -44,13 +44,28 @@ export type ReadyEvent = {
 
 export type Request = StartExecutionRequest | CancelRequest;
 
-export type Event = BeginEvent | DoneEvent | ErrorEvent | RowEvent | ReadyEvent;
+export type Event =
+  | BeginEvent
+  | DoneEvent
+  | StderrEvent
+  | RowEvent
+  | ReadyEvent;
+
+export type OnRow = (row: object) => void;
+
+export type OnStderr = (chunk: string) => void;
 
 export interface EngineImplementation {
   collectEvaluate(
     collection: AsyncIterable<string>,
     query: string,
     store: boolean,
-  ): AsyncIterable<object>;
-  evaluate(query: string): AsyncIterable<object>;
+    onRow: OnRow,
+    onStderr: OnStderr,
+  ): Promise<void>;
+  evaluate(
+    query: string,
+    onRow: OnRow,
+    onStderr: OnStderr,
+  ): void | Promise<void>;
 }
