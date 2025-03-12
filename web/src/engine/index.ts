@@ -2,12 +2,37 @@ import * as v from "valibot";
 
 import type * as ty from "./types.ts";
 
+type Series = {
+  // Sparse Array
+  data: Record<number, unknown>;
+};
+
 export type EngineState = {
   ready: boolean;
-  fields: Record<string, null>;
-  records: [index: number, data: unknown[]][];
+  series: Record<string, Series>;
+  count: number;
   error?: string;
 };
+
+export function stateFields(state: EngineState): string[] {
+  return Object.keys(state.series);
+}
+
+export function* stateRows(
+  state: EngineState,
+  select: string[],
+): Iterable<[index: number, value: [key: string, val: unknown][]]> {
+  const values = select.map<[string, Record<number, unknown> | undefined]>(
+    (f) => [f, state.series[f]?.data],
+  );
+  for (let i = 0; i < state.count; i++) {
+    const data = values.map<[string, unknown]>(([f, series]) => [
+      f,
+      series?.[i],
+    ]);
+    yield [i, data];
+  }
+}
 
 type KeyOfUnion<T> = T extends T ? keyof T : never;
 type DistributiveOmit<T, K extends KeyOfUnion<T>> = T extends T
@@ -32,7 +57,7 @@ const vEvent: v.GenericSchema<ty.Event> = v.union([
   }),
   v.object({
     type: v.literal("row"),
-    row: v.record(v.string(), v.unknown()),
+    row: v.unknown(),
   }),
   v.object({
     type: v.literal("ready"),
@@ -42,6 +67,102 @@ const vEvent: v.GenericSchema<ty.Event> = v.union([
 
 function assertsEvent(val: unknown): asserts val is ty.Event {
   v.parse(vEvent, val);
+}
+
+function addRowPrimitive(
+  prev: EngineState,
+  data: null | boolean | string | number,
+): EngineState {
+  const primitiveKey = "";
+
+  const index = prev.count;
+  const series: EngineState["series"] = {};
+
+  series[primitiveKey] = {
+    data: {
+      ...prev.series[primitiveKey]?.data,
+      [index]: data,
+    },
+  };
+
+  return {
+    ...prev,
+    series: {
+      ...prev.series,
+      ...series,
+    },
+    count: prev.count + 1,
+  };
+}
+
+function addRowList(prev: EngineState, data: unknown[]): EngineState {
+  const index = prev.count;
+  const series: EngineState["series"] = {};
+
+  for (const [key, val] of Object.entries(data)) {
+    series[key] = {
+      data: {
+        ...prev.series[key]?.data,
+        [index]: val,
+      },
+    };
+  }
+
+  return {
+    ...prev,
+    series: {
+      ...prev.series,
+      ...series,
+    },
+    count: prev.count + 1,
+  };
+}
+
+function addRowRecord(
+  prev: EngineState,
+  data: Record<string, unknown>,
+): EngineState {
+  const index = prev.count;
+  const series: EngineState["series"] = {};
+
+  for (const [key, val] of Object.entries(data)) {
+    series[key] = {
+      data: {
+        ...prev.series[key]?.data,
+        [index]: val,
+      },
+    };
+  }
+
+  return {
+    ...prev,
+    series: {
+      ...prev.series,
+      ...series,
+    },
+    count: prev.count + 1,
+  };
+}
+
+function addRow(state: EngineState, data: unknown): EngineState {
+  if (data === null) {
+    return addRowPrimitive(state, data);
+  }
+  if (typeof data === "boolean") {
+    return addRowPrimitive(state, data);
+  }
+  if (typeof data === "string") {
+    return addRowPrimitive(state, data);
+  }
+  if (typeof data === "number") {
+    return addRowPrimitive(state, data);
+  }
+
+  if (Array.isArray(data)) {
+    return addRowList(state, data);
+  }
+
+  return addRowRecord(state, data as Record<string, unknown>);
 }
 
 type WorkerShape = {
@@ -72,8 +193,8 @@ export class Engine {
     this.worker = newWorker();
     this.state = {
       ready: true,
-      fields: {},
-      records: [],
+      series: {},
+      count: 0,
     };
 
     const { promise, resolve: resolveImplementations } =
@@ -91,8 +212,8 @@ export class Engine {
         case "begin":
           this.state = {
             ready: false,
-            fields: {},
-            records: [],
+            series: {},
+            count: 0,
             error: undefined,
           };
           break;
@@ -112,27 +233,7 @@ export class Engine {
           break;
 
         case "row": {
-          const fields = {
-            ...this.state.fields,
-          };
-          for (const [key] of Object.entries(data.row)) {
-            if (key in fields) {
-              continue;
-            }
-
-            fields[key] = null;
-          }
-
-          const row: unknown[] = [];
-          for (const [key] of Object.entries(fields)) {
-            row.push((data.row as Record<string, unknown>)[key]);
-          }
-
-          this.state = {
-            ...this.state,
-            fields,
-            records: [...this.state.records, [this.state.records.length, row]],
-          };
+          this.state = addRow(this.state, data.row);
           break;
         }
 
@@ -180,6 +281,158 @@ export class Engine {
 if (import.meta.vitest) {
   /* v8 ignore start */
   const { describe, it } = import.meta.vitest;
+
+  describe("addRow", () => {
+    it("ok", ({ expect }) => {
+      let state: EngineState = {
+        ready: true,
+        series: {},
+        count: 0,
+      };
+
+      state = addRow(state, { k1: "v1", k2: "v2" });
+      expect(state).toEqual<EngineState>({
+        ready: true,
+        series: {
+          k1: {
+            data: {
+              0: "v1",
+            },
+          },
+          k2: {
+            data: {
+              0: "v2",
+            },
+          },
+        },
+        count: 1,
+      });
+
+      state = addRow(state, []);
+      expect(state).toEqual<EngineState>({
+        ready: true,
+        series: {
+          k1: {
+            data: {
+              0: "v1",
+            },
+          },
+          k2: {
+            data: {
+              0: "v2",
+            },
+          },
+        },
+        count: 2,
+      });
+
+      state = addRow(state, ["el1", "el2"]);
+      expect(state).toEqual<EngineState>({
+        ready: true,
+        series: {
+          k1: {
+            data: {
+              0: "v1",
+            },
+          },
+          k2: {
+            data: {
+              0: "v2",
+            },
+          },
+          "0": {
+            data: {
+              2: "el1",
+            },
+          },
+          "1": {
+            data: {
+              2: "el2",
+            },
+          },
+        },
+        count: 3,
+      });
+
+      state = addRow(state, null);
+      expect(state).toEqual<EngineState>({
+        ready: true,
+        series: {
+          k1: {
+            data: {
+              0: "v1",
+            },
+          },
+          k2: {
+            data: {
+              0: "v2",
+            },
+          },
+          "0": {
+            data: {
+              2: "el1",
+            },
+          },
+          "1": {
+            data: {
+              2: "el2",
+            },
+          },
+          "": {
+            data: {
+              3: null,
+            },
+          },
+        },
+        count: 4,
+      });
+
+      const fields = stateFields(state);
+      expect(fields).toEqual(["0", "1", "k1", "k2", ""]);
+      expect(Array.from(stateRows(state, fields))).toEqual([
+        [
+          0,
+          [
+            ["0", undefined],
+            ["1", undefined],
+            ["k1", "v1"],
+            ["k2", "v2"],
+            ["", undefined],
+          ],
+        ],
+        [
+          1,
+          [
+            ["0", undefined],
+            ["1", undefined],
+            ["k1", undefined],
+            ["k2", undefined],
+            ["", undefined],
+          ],
+        ],
+        [
+          2,
+          [
+            ["0", "el1"],
+            ["1", "el2"],
+            ["k1", undefined],
+            ["k2", undefined],
+            ["", undefined],
+          ],
+        ],
+        [
+          3,
+          [
+            ["0", undefined],
+            ["1", undefined],
+            ["k1", undefined],
+            ["k2", undefined],
+            ["", null],
+          ],
+        ],
+      ]);
+    });
+  });
 
   describe("Engine", () => {
     it("ok", async ({ expect }) => {
@@ -252,66 +505,85 @@ if (import.meta.vitest) {
       expect(history).toEqual<EngineState[]>([
         {
           ready: false,
-          fields: {},
-          records: [],
+          series: {},
+          count: 0,
           error: undefined,
         },
         {
           ready: false,
-          fields: {
-            row: null,
+          series: {
+            row: {
+              data: { 0: 1 },
+            },
           },
-          records: [[0, [1]]],
+          count: 1,
           error: undefined,
         },
         {
           ready: false,
-          fields: {
-            row: null,
+          series: {
+            row: {
+              data: {
+                0: 1,
+                1: 2,
+              },
+            },
           },
-          records: [
-            [0, [1]],
-            [1, [2]],
-          ],
+          count: 2,
           error: undefined,
         },
         {
           ready: false,
-          fields: {
-            row: null,
-            row2: null,
+          series: {
+            row: {
+              data: {
+                0: 1,
+                1: 2,
+              },
+            },
+            row2: {
+              data: {
+                2: 3,
+              },
+            },
           },
-          records: [
-            [0, [1]],
-            [1, [2]],
-            [2, [undefined, 3]],
-          ],
+          count: 3,
           error: undefined,
         },
         {
           ready: false,
-          fields: {
-            row: null,
-            row2: null,
+          series: {
+            row: {
+              data: {
+                0: 1,
+                1: 2,
+              },
+            },
+            row2: {
+              data: {
+                2: 3,
+              },
+            },
           },
-          records: [
-            [0, [1]],
-            [1, [2]],
-            [2, [undefined, 3]],
-          ],
+          count: 3,
           error: "Hello",
         },
         {
           ready: true,
-          fields: {
-            row: null,
-            row2: null,
+          series: {
+            row: {
+              data: {
+                0: 1,
+                1: 2,
+              },
+            },
+            row2: {
+              data: {
+                2: 3,
+              },
+            },
           },
-          records: [
-            [0, [1]],
-            [1, [2]],
-            [2, [undefined, 3]],
-          ],
+          count: 3,
           error: "Hello",
         },
       ]);

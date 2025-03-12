@@ -34,7 +34,7 @@ export type StderrEvent = {
 
 export type RowEvent = {
   type: "row";
-  row: object;
+  row: unknown;
 };
 
 export type ReadyEvent = {
