@@ -14,7 +14,7 @@ import type React from "react";
 
 import { fetchListCollections } from "../api/collections/index.ts";
 import type { ListCollectionsResponse } from "../api/collections/index.ts";
-import { Engine } from "../engine/index.ts";
+import { Engine, stateFields, stateRows } from "../engine/index.ts";
 import type { EngineState } from "../engine/index.ts";
 import { FragmentStore } from "./fragment.ts";
 
@@ -39,22 +39,21 @@ function renderText(val: unknown): React.ReactNode {
 }
 
 function StateView({ state }: { state: EngineState }): React.ReactNode {
-  const fields = Object.entries(state.fields);
-
+  const fields = stateFields(state);
   return (
     <table>
       <thead>
         <tr>
-          {fields.map(([key]) => (
-            <th key={key}>{key}</th>
+          {fields.map((field) => (
+            <th key={field}>{field}</th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {state.records.map(([i, row]) => (
-          <tr key={i}>
-            {fields.map(([key], i) => (
-              <td key={key}>{renderText(row[i])}</td>
+        {Array.from(stateRows(state, fields), ([index, row]) => (
+          <tr key={index}>
+            {row.map(([key, val]) => (
+              <td key={key}>{renderText(val)}</td>
             ))}
           </tr>
         ))}
