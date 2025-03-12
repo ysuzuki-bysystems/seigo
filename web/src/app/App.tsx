@@ -12,7 +12,6 @@ import {
 import type { ChangeEventHandler } from "react";
 import type React from "react";
 
-import "./App.css";
 import { fetchListCollections } from "../api/collections/index.ts";
 import type { ListCollectionsResponse } from "../api/collections/index.ts";
 import { Engine } from "../engine/index.ts";
@@ -47,7 +46,7 @@ function StateView({ state }: { state: EngineState }): React.ReactNode {
       <thead>
         <tr>
           {fields.map(([key]) => (
-            <td key={key}>{key}</td>
+            <th key={key}>{key}</th>
           ))}
         </tr>
       </thead>
@@ -187,29 +186,45 @@ function AppView({
     engine.cancel();
   }, [engine]);
 
+  const collectionId = useId();
+  const languageId = useId();
+  const queryId = useId();
+  const sinceId = useId();
   const tailId = useId();
 
   return (
     <>
-      <select value={language} onChange={handleLanguageChanges}>
-        {languages.map((lang) => (
-          <option key={lang}>{lang}</option>
-        ))}
-      </select>
-      <select value={collection} onChange={handleCollectionChanges}>
+      <label htmlFor={collectionId}>collection</label>
+      <select
+        id={collectionId}
+        value={collection}
+        onChange={handleCollectionChanges}
+      >
         {collections.collections.map((item) => (
           <option key={item.name}>{item.name}</option>
         ))}
       </select>
+
+      <label htmlFor={languageId}>language</label>
+      <select id={languageId} value={language} onChange={handleLanguageChanges}>
+        {languages.map((lang) => (
+          <option key={lang}>{lang}</option>
+        ))}
+      </select>
+
+      <label htmlFor={queryId}>query</label>
       <textarea
+        id={queryId}
         value={query}
         onChange={(event) => setQuery(event.currentTarget.value)}
       />
+
       {state.ready && (
         <button type="button" onClick={handleApplyClicked}>
           apply
         </button>
       )}
+
       <input
         id={tailId}
         type="checkbox"
@@ -218,11 +233,15 @@ function AppView({
       />
       <label htmlFor={tailId}>tail</label>
       {!tail && (
-        <input
-          type="datetime-local"
-          value={since}
-          onChange={(event) => setSince(event.currentTarget.value)}
-        />
+        <>
+          <label htmlFor={sinceId}>since</label>
+          <input
+            id={sinceId}
+            type="datetime-local"
+            value={since}
+            onChange={(event) => setSince(event.currentTarget.value)}
+          />
+        </>
       )}
       {state.ready && (
         <button type="button" onClick={handleRefreshClicked}>
