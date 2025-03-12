@@ -104,6 +104,10 @@ function AppView({
   const state = useSyncExternalStore(engine.subscribe, engine.snapshot);
 
   useEffect(() => {
+    if (fragment.collection === "" || fragment.language === "") {
+      return;
+    }
+
     engine.cancel();
     if (tail) {
       engine.startExecution({
@@ -186,6 +190,11 @@ function AppView({
     engine.cancel();
   }, [engine]);
 
+  const dirty =
+    fragment.collection !== collection ||
+    fragment.language !== language ||
+    fragment.query !== query;
+
   const collectionId = useId();
   const languageId = useId();
   const queryId = useId();
@@ -220,7 +229,7 @@ function AppView({
       />
 
       {state.ready && (
-        <button type="button" onClick={handleApplyClicked}>
+        <button type="button" disabled={!dirty} onClick={handleApplyClicked}>
           apply
         </button>
       )}
@@ -243,11 +252,13 @@ function AppView({
           />
         </>
       )}
-      {state.ready && (
-        <button type="button" onClick={handleRefreshClicked}>
-          refresh
-        </button>
-      )}
+      {state.ready &&
+        fragment.collection !== "" &&
+        fragment.language !== "" && (
+          <button type="button" onClick={handleRefreshClicked}>
+            refresh
+          </button>
+        )}
       {!state.ready && (
         <button type="button" onClick={handleCancel}>
           cancel
