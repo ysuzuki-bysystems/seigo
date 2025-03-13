@@ -19,7 +19,7 @@ func (d *journaldDatasource) collect(cx context.Context, env *datasourceEnv, opt
 		return nil, err
 	}
 
-	return journald.JournaldCollect(cx, &cfg, opts)
+	return journald.JournaldCollect(cx, env.path, &cfg, opts)
 }
 
 func init() {

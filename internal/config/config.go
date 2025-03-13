@@ -40,6 +40,9 @@ func (e *Collection) UnmarshalTOML(raw any) error {
 }
 
 type Config struct {
+	// Read file path
+	Path string `toml:"-"`
+
 	Collection []*Collection `toml:"collection"`
 }
 
@@ -55,5 +58,6 @@ func ReadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
+	result.Path = path
 	return &result, nil
 }

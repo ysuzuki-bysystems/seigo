@@ -1,3 +1,8 @@
 [[collection]]
 name = "default"
 type = "journald"
+
+[[collection]]
+name = "stub"
+type = "journald"
+journalctl-cmd = "./stub/journalctl"
