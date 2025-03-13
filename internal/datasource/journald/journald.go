@@ -10,10 +10,22 @@ import (
 	"iter"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/ysuzuki-bysystems/seigo/internal/types"
 )
+
+func resolvePath(cfgPath, target string) string {
+	// relative path or not
+	if !strings.HasPrefix(target, ".") {
+		return target
+	}
+
+	dir := filepath.Dir(cfgPath)
+	return filepath.Join(dir, target)
+}
 
 type journaldRecord struct {
 	Message string `json:"MESSAGE"`
@@ -27,15 +39,13 @@ type journaldRecord struct {
 type JournaldConfig struct {
 	NoDockerAware bool                `json:"no-docker-aware"`
 	Match         []map[string]string `json:"match"`
-
-	// for Test
-	JournalctlBin string `json:"-"`
+	JournalctlCmd string              `json:"journalctl-cmd"`
 }
 
-func JournaldCollect(cx context.Context, cfg *JournaldConfig, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
+func JournaldCollect(cx context.Context, cfgPath string, cfg *JournaldConfig, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
 	program := "journalctl"
-	if cfg.JournalctlBin != "" {
-		program = cfg.JournalctlBin
+	if cfg.JournalctlCmd != "" {
+		program = resolvePath(cfgPath, cfg.JournalctlCmd)
 	}
 
 	args := []string{
@@ -81,7 +91,6 @@ func JournaldCollect(cx context.Context, cfg *JournaldConfig, opts *types.Collec
 				if errors.Is(err, io.EOF) {
 					break
 				}
-				fmt.Printf("%#v\n", err)
 				yield(nil, err)
 				return
 			}

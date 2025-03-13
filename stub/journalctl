@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# from https://pkg.go.dev/log/slog
+slog_example() {
+  cat << EOF
+{"time":"2022-11-08T15:28:26.000000000-05:00","level":"INFO","msg":"hello","count":3}
+EOF
+}
+
+# from https://github.com/pinojs/pino
+pino_example() {
+  cat << EOF
+{"level":30,"time":1531171074631,"msg":"hello world","pid":657,"hostname":"Davids-MBP-3.fritz.box"}
+{"level":30,"time":1531171082399,"msg":"hello child!","pid":657,"hostname":"Davids-MBP-3.fritz.box","a":"property"}
+EOF
+}
+
+# from https://docs.aws.amazon.com/cli/v1/userguide/cli_cloudwatch-logs_code_examples.html
+aws_logs_example() {
+  jq -Mc '.events[]' << EOF
+{
+    "nextForwardToken": "f/31961209122447488583055879464742346735121166569214640130",
+    "events": [
+        {
+            "ingestionTime": 1433190494190,
+            "timestamp": 1433190184356,
+            "message": "Example Event 1"
+        },
+        {
+            "ingestionTime": 1433190516679,
+            "timestamp": 1433190184356,
+            "message": "Example Event 1"
+        },
+        {
+            "ingestionTime": 1433190494190,
+            "timestamp": 1433190184358,
+            "message": "Example Event 2"
+        }
+    ],
+    "nextBackwardToken": "b/31961209122358285602261756944988674324553373268216709120"
+}
+EOF
+}
+
+as_journal() {
+  name=$1
+  jq -Mc '. + {log:$name} | {MESSAGE:tojson}' --arg name "$name"
+}
+
+slog_example | as_journal slog
+pino_example | as_journal pino
+aws_logs_example | as_journal aws

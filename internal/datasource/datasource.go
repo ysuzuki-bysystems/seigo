@@ -13,7 +13,8 @@ import (
 )
 
 type datasourceEnv struct {
-	cfg json.RawMessage
+	cfg  json.RawMessage
+	path string
 }
 
 func (d *datasourceEnv) unmarshalConfig(dst any) error {
@@ -61,7 +62,8 @@ func Collect(cx context.Context, cfg *config.Config, name string, opts *types.Co
 	ds := v.(datasource)
 
 	env := &datasourceEnv{
-		cfg: collection.Opts,
+		cfg:  collection.Opts,
+		path: cfg.Path,
 	}
 
 	return ds.collect(cx, env, opts)

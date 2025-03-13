@@ -1,8 +1,6 @@
 package journald_test
 
 import (
-	"os"
-	"path/filepath"
 	"slices"
 	"testing"
 	"time"
@@ -12,12 +10,7 @@ import (
 )
 
 func TestJournaldCollect(t *testing.T) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	journalctl := filepath.Join(cwd, "./testdata/journalctl.sh")
-
+	dummyCfgPath := "./testdata/config.toml" // not exists
 	cfg := &journald.JournaldConfig{
 		Match: []map[string]string{
 			{
@@ -25,13 +18,13 @@ func TestJournaldCollect(t *testing.T) {
 			},
 		},
 
-		JournalctlBin: journalctl,
+		JournalctlCmd: "./journalctl.sh",
 	}
 	opts := &types.CollectOpts{
 		Tail:  false,
 		Since: time.Unix(0, 0).UTC(),
 	}
-	iter, err := journald.JournaldCollect(t.Context(), cfg, opts)
+	iter, err := journald.JournaldCollect(t.Context(), dummyCfgPath, cfg, opts)
 	if err != nil {
 		t.Fatal(err)
 	}
