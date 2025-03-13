@@ -1,6 +1,7 @@
 package journald
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -9,7 +10,6 @@ import (
 	"iter"
 	"os"
 	"os/exec"
-	"sync"
 	"time"
 
 	"github.com/ysuzuki-bysystems/seigo/internal/types"
@@ -33,10 +33,6 @@ type JournaldConfig struct {
 }
 
 func JournaldCollect(cx context.Context, cfg *JournaldConfig, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
-	wg := new(sync.WaitGroup)
-	var cancel context.CancelFunc
-	cx, cancel = context.WithCancel(cx)
-
 	program := "journalctl"
 	if cfg.JournalctlBin != "" {
 		program = cfg.JournalctlBin
@@ -65,36 +61,27 @@ func JournaldCollect(cx context.Context, cfg *JournaldConfig, opts *types.Collec
 	cmd.Stderr = os.Stderr
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		cancel()
 		return nil, err
 	}
 
-	wg.Add(1)
-	context.AfterFunc(cx, func() {
-		defer wg.Done()
-		_ = stdout.Close()
-	})
-
 	if err := cmd.Start(); err != nil {
-		cancel()
 		return nil, err
 	}
 
 	return func(yield func(json.RawMessage, error) bool) {
 		defer func() {
-			cancel()
-			wg.Wait()
 			_, _ = cmd.Process.Wait()
 		}()
 
 		var buf []byte
 		var record journaldRecord
-		dec := json.NewDecoder(stdout)
+		dec := json.NewDecoder(bufio.NewReader(stdout))
 		for {
 			if err := dec.Decode(&record); err != nil {
 				if errors.Is(err, io.EOF) {
 					break
 				}
+				fmt.Printf("%#v\n", err)
 				yield(nil, err)
 				return
 			}
