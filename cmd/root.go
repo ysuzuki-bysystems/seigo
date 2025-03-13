@@ -8,19 +8,19 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ysuzuki-bysystems/seigo/internal/app"
-	"github.com/ysuzuki-bysystems/seigo/internal/config"
+	config_ "github.com/ysuzuki-bysystems/seigo/internal/config"
 )
 
 var rootCmd = &cobra.Command{
-	Use:           "seigo",
-	Short:         "Seigo 🐟",
-	RunE:          runRoot,
-	SilenceErrors: true,
+	Use:          "seigo",
+	Short:        "Seigo 🐟",
+	RunE:         runRoot,
+	SilenceUsage: true,
 }
 
 var listenAddr string
 var listenPort uint16
-var configPath string
+var config *config_.Config
 
 func init() {
 	defaultConfigPath, found := os.LookupEnv("SEIGO_CONFIG")
@@ -29,6 +29,7 @@ func init() {
 		cobra.CheckErr(err)
 		defaultConfigPath = filepath.Join(configHome, "seigo", "config.toml")
 	}
+	var configPath string
 
 	defaultListenAddr, found := os.LookupEnv("SEIGO_LISTEN_ADDR")
 	if !found {
@@ -49,16 +50,17 @@ func init() {
 	flags.StringVarP(&listenAddr, "listen-addr", "l", defaultListenAddr, "Listen Address.")
 	flags.Uint16VarP(&listenPort, "port", "p", defaultListenPort, "Listen Port.")
 	flags.StringVarP(&configPath, "config", "C", defaultConfigPath, "Config file path.")
+
+	cobra.OnInitialize(func() {
+		var err error
+		config, err = config_.ReadConfig(configPath)
+		cobra.CheckErr(err)
+	})
 }
 
 func runRoot(cmd *cobra.Command, args []string) error {
-	cfg, err := config.ReadConfig(configPath)
-	if err != nil {
-		return err
-	}
-
 	addr := fmt.Sprintf("%s:%d", listenAddr, listenPort)
-	return app.Serve(cfg, addr)
+	return app.Serve(config, addr)
 }
 
 func Execute() error {
