@@ -6,3 +6,15 @@ type = "journald"
 name = "stub"
 type = "journald"
 journalctl-cmd = "./stub/journalctl"
+
+[[collection]]
+name = "ssh"
+type = "ssh+journald"
+hostname = "localhost"
+#port = 0
+#username = ""
+#identity-file = ""
+#identity-agent = ""
+#global-known-hosts-file = ""
+#user-known-hosts-file = ""
+hostkey-algorithms = ["ssh-ed25519"]

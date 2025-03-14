@@ -25,3 +25,18 @@ func (d *journaldDatasource) collect(cx context.Context, env *datasourceEnv, opt
 func init() {
 	registerDatasource("journald", new(journaldDatasource))
 }
+
+type sshJournaldDatasource struct{}
+
+func (d *sshJournaldDatasource) collect(cx context.Context, env *datasourceEnv, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
+	var cfg journald.SshJournaldConfig
+	if err := env.unmarshalConfig(&cfg); err != nil {
+		return nil, err
+	}
+
+	return journald.SshJournaldCollect(cx, env.path, &cfg, opts)
+}
+
+func init() {
+	registerDatasource("ssh+journald", new(sshJournaldDatasource))
+}

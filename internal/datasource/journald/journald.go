@@ -17,7 +17,7 @@ import (
 	"github.com/ysuzuki-bysystems/seigo/internal/types"
 )
 
-func resolvePath(cfgPath, target string) string {
+func resolveBin(cfgPath, target string) string {
 	// relative path or not
 	if !strings.HasPrefix(target, ".") {
 		return target
@@ -42,46 +42,9 @@ type JournaldConfig struct {
 	JournalctlCmd string              `json:"journalctl-cmd"`
 }
 
-func JournaldCollect(cx context.Context, cfgPath string, cfg *JournaldConfig, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
-	program := "journalctl"
-	if cfg.JournalctlCmd != "" {
-		program = resolvePath(cfgPath, cfg.JournalctlCmd)
-	}
-
-	args := []string{
-		"--output=json",
-	}
-	if opts.Tail {
-		args = append(args, "--follow")
-	} else {
-		args = append(args, fmt.Sprintf("--since=%s", opts.Since.Format(time.RFC3339)))
-	}
-	for _, m := range cfg.Match {
-		// TODO sorted
-		for key, val := range m {
-			args = append(args, fmt.Sprintf("%s=%s", key, val))
-		}
-	}
-
-	cmd := exec.CommandContext(cx, program, args...)
-	cmd.Cancel = func() error {
-		return cmd.Process.Signal(os.Interrupt)
-	}
-	cmd.Stdin = nil
-	cmd.Stderr = os.Stderr
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := cmd.Start(); err != nil {
-		return nil, err
-	}
-
+func iterRecords(cfg *JournaldConfig, stdout io.Reader, onDone func()) iter.Seq2[json.RawMessage, error] {
 	return func(yield func(json.RawMessage, error) bool) {
-		defer func() {
-			_, _ = cmd.Process.Wait()
-		}()
+		defer onDone()
 
 		var buf []byte
 		var record journaldRecord
@@ -127,5 +90,50 @@ func JournaldCollect(cx context.Context, cfgPath string, cfg *JournaldConfig, op
 			return
 		}
 		yield(raw, nil)
-	}, nil
+
+	}
+}
+
+var journalctl = "journalctl"
+
+func JournaldCollect(cx context.Context, cfgPath string, cfg *JournaldConfig, opts *types.CollectOpts) (iter.Seq2[json.RawMessage, error], error) {
+	program := journalctl
+	if cfg.JournalctlCmd != "" {
+		program = resolveBin(cfgPath, cfg.JournalctlCmd)
+	}
+
+	args := []string{
+		"--output=json",
+	}
+	if opts.Tail {
+		args = append(args, "--follow")
+	} else {
+		args = append(args, fmt.Sprintf("--since=%s", opts.Since.Format(time.RFC3339)))
+	}
+	for _, m := range cfg.Match {
+		// TODO sorted
+		for key, val := range m {
+			args = append(args, fmt.Sprintf("%s=%s", key, val))
+		}
+	}
+
+	cmd := exec.CommandContext(cx, program, args...)
+	cmd.Cancel = func() error {
+		return cmd.Process.Signal(os.Interrupt)
+	}
+	cmd.Stdin = nil
+	cmd.Stderr = os.Stderr
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+
+	onDone := func() {
+		_, _ = cmd.Process.Wait()
+	}
+	return iterRecords(cfg, stdout, onDone), nil
 }
