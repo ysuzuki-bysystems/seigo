@@ -81,14 +81,14 @@ func newServer(cx context.Context, addrChan chan *net.TCPAddr, serverPrivateKey 
 		serve := func() error {
 			defer nconn.Close()
 
-			conn, chans, reqs, err := ssh.NewServerConn(nconn, cfg)
+			conn, chans, connreqs, err := ssh.NewServerConn(nconn, cfg)
 			if err != nil {
 				return err
 			}
 			defer conn.Close()
 
 			go func() {
-				ssh.DiscardRequests(reqs)
+				ssh.DiscardRequests(connreqs)
 			}()
 
 			// only accept single channel
