@@ -114,4 +114,4 @@ make dev
 
 ## ライセンス
 
-TODO
+[MIT](LICENSE)
