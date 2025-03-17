@@ -1,5 +1,6 @@
 //go:build !dev
 
+//go:generate npm --prefix ../../web run build:jaq
 //go:generate npm --prefix ../../web run build -- --outDir ../internal/web/dist --emptyOutDir
 package web
 
