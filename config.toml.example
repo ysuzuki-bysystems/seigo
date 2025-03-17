@@ -1,6 +1,8 @@
 [[collection]]
 name = "default"
 type = "journald"
+#[[collection.match]]
+#KEY = "VALUE"
 
 [[collection]]
 name = "stub"
