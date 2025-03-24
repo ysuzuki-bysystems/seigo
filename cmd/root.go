@@ -1,10 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
+	"sync"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"github.com/ysuzuki-bysystems/seigo/internal/app"
@@ -21,6 +25,7 @@ var rootCmd = &cobra.Command{
 var listenAddr string
 var listenPort uint16
 var config *config_.Config
+var rootcx context.Context
 
 func init() {
 	defaultConfigPath, found := os.LookupEnv("SEIGO_CONFIG")
@@ -51,16 +56,27 @@ func init() {
 	flags.Uint16VarP(&listenPort, "port", "p", defaultListenPort, "Listen Port.")
 	flags.StringVarP(&configPath, "config", "C", defaultConfigPath, "Config file path.")
 
+	wg := &sync.WaitGroup{}
+
 	cobra.OnInitialize(func() {
+		rootcx = context.Background()
+
 		var err error
 		config, err = config_.ReadConfig(configPath)
 		cobra.CheckErr(err)
 	})
+
+	cobra.OnFinalize(func() {
+		wg.Wait()
+	})
 }
 
 func runRoot(cmd *cobra.Command, args []string) error {
+	cx, cancel := signal.NotifyContext(rootcx, os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
 	addr := fmt.Sprintf("%s:%d", listenAddr, listenPort)
-	return app.Serve(config, addr)
+	return app.Serve(cx, config, addr)
 }
 
 func Execute() error {

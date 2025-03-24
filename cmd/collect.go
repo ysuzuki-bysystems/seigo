@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -34,7 +33,7 @@ func init() {
 }
 
 func runCollect(cmd *cobra.Command, args []string) error {
-	cx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	cx, cancel := signal.NotifyContext(rootcx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	name := args[0]
