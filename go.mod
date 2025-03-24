@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	github.com/BurntSushi/toml v1.4.0
+	github.com/edsrzf/mmap-go v1.2.0
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.3
