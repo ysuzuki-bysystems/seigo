@@ -36,6 +36,7 @@ Flags:
   -h, --help                 help for seigo
   -l, --listen-addr string   Listen Address. (default "localhost")
   -p, --port uint16          Listen Port. (default 8080)
+  -s, --stdin                Read logs from stdin mode. If this flag is specified, --config is ignored.
 
 Use "seigo [command] --help" for more information about a command.
 ```
