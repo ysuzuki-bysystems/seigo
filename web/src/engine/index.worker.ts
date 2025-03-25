@@ -1,7 +1,7 @@
 import * as v from "valibot";
 
-import { collect } from "../api/collections/:name/index.ts";
-import type { CollectOpts } from "../api/collections/:name/index.ts";
+import { collect } from "../api/collections/[name]/index.ts";
+import type { CollectOpts } from "../api/collections/[name]/index.ts";
 import type * as ty from "./types.ts";
 
 type ImplementationModule = {
