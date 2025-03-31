@@ -1,9 +1,8 @@
 module github.com/ysuzuki-bysystems/seigo
 
 go 1.24.0
-
 require (
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/edsrzf/mmap-go v1.2.0
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/joho/godotenv v1.5.1
