@@ -1,73 +1,28 @@
 @import "tailwindcss";
 
-/*
- * Temporary added: Styling not yet.
- * TODO remove below
- */
 @layer base {
-  :focus {
-    border-color: AccentColor;
+  /* optional */
+}
+
+/* Utilities: project-specific utility classes */
+@layer utilities {
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      transform: translate(3px, -2px) rotate(-1deg);
+    }
+    50% {
+      transform: translate(-3px, 2px) rotate(1deg);
+    }
+    75% {
+      transform: translate(2px, 2px) rotate(0deg);
+    }
   }
 
-  input,
-  select,
-  textarea,
-  td,
-  th {
-    border: thin ButtonBorder solid;
-  }
-
-  label,
-  button,
-  input[type="checkbox"] {
-    margin-left: 2rem;
-    padding-right: 1rex;
-  }
-
-  label:first-of-type {
-    margin-left: 1rem;
-  }
-
-  label + select,
-  label + textarea,
-  label + input {
-    margin-left: 0;
-  }
-
-  input[type="checkbox"] + label {
-    margin-left: 1rex;
-  }
-
-  button,
-  textarea,
-  td {
-    padding: 0 0.5rex;
-  }
-
-  table {
-    margin-top: 1rem;
-  }
-
-  button {
-    border: thin ButtonBorder solid;
-    background-color: ButtonFace;
-  }
-
-  button:disabled {
-    background-color: unset;
-  }
-
-  button:active:not(:disabled) {
-    transform: scale(0.9);
-  }
-
-  label,
-  button {
-    text-transform: capitalize;
-  }
-
-  th,
-  td {
-    font-family: monospace;
+  .animate-shake {
+    animation: shake 0.5s ease-in-out infinite;
   }
 }
