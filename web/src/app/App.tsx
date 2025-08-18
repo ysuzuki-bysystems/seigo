@@ -9,16 +9,16 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import type { ReactNode } from "react";
+import { Menu, X } from "lucide-react";
+import type React from "react";
 import { fetchListCollections } from "../api/collections/index.ts";
 import type { ListCollectionsResponse } from "../api/collections/index.ts";
 import { Engine } from "../engine/index.ts";
+import Sidebar from "./components/Sidebar.tsx";
+import StateTable from "./components/StateTable.tsx";
+import Toolbar from "./components/Toolbar.tsx";
 import { FragmentStore } from "./fragment.ts";
-import { Menu, X } from "lucide-react";
-import { datetimeLocalFormat } from "./utils/format";
-import StateTable from "./components/StateTable";
-import Toolbar from "./components/Toolbar";
-import Sidebar from "./components/Sidebar";
+import { datetimeLocalFormat } from "./utils/format.ts";
 
 type AppViewProps = {
   fragmentStore: FragmentStore;
@@ -30,7 +30,7 @@ function AppView({
   fragmentStore,
   engine,
   listCollectionsPromise,
-}: AppViewProps): ReactNode {
+}: AppViewProps): React.ReactNode {
   use(fragmentStore.ready);
   const collections = use(listCollectionsPromise);
   const languages = use(engine.implementations);
@@ -175,7 +175,9 @@ function AppView({
           </div>
         )}
       </main>
-      <div className={`overflow-hidden transition-[width] duration-300 ${sidebarOpen ? "w-80" : "w-0"}`}>
+      <div
+        className={`overflow-hidden transition-[width] duration-300 ${sidebarOpen ? "w-80" : "w-0"}`}
+      >
         <Sidebar
           open={sidebarOpen}
           collections={collections.collections}
@@ -200,6 +202,7 @@ function AppView({
 
       {/* Sidebar toggle button */}
       <button
+        type="button"
         className="absolute top-2 right-2 p-2 bg-gray-200 rounded hover:bg-gray-300 ring-0"
         onClick={() => setSidebarOpen((prev) => !prev)}
       >

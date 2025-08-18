@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import type React from "react";
 import { stateFields, stateRows } from "../../engine/index.ts";
 import type { EngineState } from "../../engine/index.ts";
-import { renderText } from "../utils/format";
+import { renderText } from "../utils/format.ts";
 
 type Props = { state: EngineState };
 
-export default function StateTable({ state }: Props): ReactNode {
+export default function StateTable({ state }: Props): React.ReactNode {
   const fields = stateFields(state);
 
   return (

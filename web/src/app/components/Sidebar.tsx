@@ -1,8 +1,8 @@
 "use client";
+import { Play, Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useId } from "react";
-import type { ListCollectionsResponse } from "../../api/collections";
-import { Play, Trash2 } from "lucide-react";
+import type { ListCollectionsResponse } from "../../api/collections/index.ts";
 
 type Props = {
   open: boolean;
@@ -50,11 +50,13 @@ export default function Sidebar({
   onClearHistory,
   onCrack,
 }: Props): ReactNode {
-  if (!open) return null;
-
   const collectionId = useId();
   const languageId = useId();
   const queryId = useId();
+
+  if (!open) {
+    return null;
+  }
 
   return (
     <aside className="h-screen bg-sky-50 border-l border-sky-200 p-4 flex flex-col">
@@ -137,6 +139,7 @@ export default function Sidebar({
 
           {queryHistory.length > 0 && (
             <button
+              type="button"
               onClick={onClearHistory}
               className="text-red-600 text-sm hover:underline"
             >
@@ -146,15 +149,17 @@ export default function Sidebar({
         </div>
         <ul className="space-y-1 mt-2">
           {queryHistory.map((entry, idx) => (
-            <li key={idx} className="flex items-center gap-2">
+            <li key={entry} className="flex items-center gap-2">
               <span className="flex-1 truncate">{entry}</span>
               <button
+                type="button"
                 onClick={() => onRunHistory(entry)}
                 className="text-blue-600 hover:underline flex items-center gap-1"
               >
                 <Play className="w-4 h-4 text-blue-600 hover:text-blue-800" />
               </button>
               <button
+                type="button"
                 onClick={() => onRemoveHistory(idx)}
                 className="text-red-500 hover:text-blue-600"
               >
@@ -166,13 +171,14 @@ export default function Sidebar({
       </div>
       <div className="mt-auto">
         <button
+          type="button"
           onClick={onCrack}
           className="bg-red-600 text-white text-xs rounded-md px-2 py-2 font-bold shadow
                     hover:bg-red-700
                     transform-gpu origin-center
                     transition-colors transition-transform duration-200 ease-out
                     active:scale-95 active:duration-100 active:ease-in"
-          >
+        >
           DON'T PUSH ME
         </button>
       </div>
