@@ -23,7 +23,7 @@
     "noUncheckedSideEffectImports": true,
 
     "erasableSyntaxOnly": true,
-    "types": ["vitest/importMeta"]
+    "types": ["vitest/importMeta", "node"]
   },
   "include": ["src"]
 }
