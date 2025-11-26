@@ -16,7 +16,7 @@
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "valibot": "^1.0.0-rc.3"
+    "valibot": "^1.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
